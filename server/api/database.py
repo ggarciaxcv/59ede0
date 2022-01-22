@@ -15,13 +15,6 @@ Base = declarative_base()
 
 # Class DbInit is used to initialize new SQA engines and sessions for use with multi-threading.
 class DbInit():
-
-    # new_engine returns a new SQA engine.
-    @classmethod
-    def new_engine(self) -> Engine:
-        engine = create_engine(config.get("DATABASE_URL"))
-        return engine
-
     # new_scoped_session returns a new SQA scoped session
     @classmethod
     def new_scoped_session(self, engine) -> Session:
