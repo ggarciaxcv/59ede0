@@ -1,5 +1,5 @@
 from typing import Generator
-from api.database import SessionLocal, DbInit
+from api.database import SessionLocal, DbInit, engine
 
 
 def get_db() -> Generator:
@@ -13,7 +13,6 @@ def get_db() -> Generator:
 # get scoped SQA session for use with multi-threading in Uploads service
 def get_db_scoped() -> Generator:
     """Yield a scoped SQLAlchemy database session"""
-    engine = DbInit.new_engine()
     db = DbInit.new_scoped_session(engine)
     try:
         yield db
