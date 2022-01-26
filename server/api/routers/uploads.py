@@ -31,7 +31,9 @@ from api.dependencies.db import get_db_scoped
 router = APIRouter(prefix="/api", tags=["prospects_files"])
 
 # process upload request from stored file
-@router.post("/prospects_files/import/upload", response_model=schemas.UploadCreateResponse)
+@router.post(
+    "/prospects_files/import/upload", response_model=schemas.UploadCreateResponse
+)
 def new_upload_write(
     data: schemas.UploadWriteRequest,
     current_user: schemas.User = Depends(get_current_user),
@@ -40,15 +42,15 @@ def new_upload_write(
     print("*** NEW UPLOAD REQUEST ***")
     """Validate and add prospects to a campaign"""
     if not current_user:
-       raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Please log in")
+        raise HTTPException(status.HTTP_401_UNAUTHORIZED, detail="Please log in")
 
     # write file to disk cache
     print("retrieving cache file")
     try:
-        cache_file = get_cache_file(current_user.id, data.file_name) 
+        cache_file = get_cache_file(current_user.id, data.file_name)
     except BaseException as err:
-         print(f"get cache file failed: {err=}, {type(err)=}")
-         raise HTTPException(status_code=500, detail="Something went wrong!")
+        print(f"get cache file failed: {err=}, {type(err)=}")
+        raise HTTPException(status_code=500, detail="Something went wrong!")
 
     # scan file and write Prospect records to DB
     print("uploading records...")
@@ -56,6 +58,9 @@ def new_upload_write(
         cache_file,
         current_user.id,
         data.upload_id,
+        data.email_index,
+        data.first_name_index,
+        data.last_name_index,
         data.force,
         data.has_headers,
         db,
@@ -65,10 +70,15 @@ def new_upload_write(
     message = "Upload complete!"
     if err:
         message = "Upload completed with some errors."
-        return JSONResponse({"success": True, "message": message, "id": data.upload_id}, 201)
+        return JSONResponse(
+            {"success": True, "message": message, "id": data.upload_id}, 201
+        )
 
     print("*** UPLOAD COMPLTE ***")
-    return JSONResponse({"success": True, "message": message, "id": data.upload_id}, 201)
+    return JSONResponse(
+        {"success": True, "message": message, "id": data.upload_id}, 201
+    )
+
 
 # write_file writes the given file to the disk cache
 def get_cache_file(user_id: int, file_name: str) -> FileIO:
@@ -82,11 +92,15 @@ def get_cache_file(user_id: int, file_name: str) -> FileIO:
     cache_file = open(file_path, "rb")
     return cache_file
 
-# scan_lines scans each line in the .csv file 
+
+# scan_lines scans each line in the .csv file
 def scan_lines(
     file: FileIO,
     user_id: int,
     upload_id: int,
+    email_index: int,
+    first_name_index: int,
+    last_name_index: int,
     force: bool,
     headers: bool,
     db: Session,
@@ -95,16 +109,27 @@ def scan_lines(
     lines = file.readlines()
     (created, updated, skipped, failed) = (0, 0, 0, 0)
 
-    thread_limit = 25 # max number of concurrent threads
-    lock = Lock() # lock for 'failed' var shared by threads
-    threads_list = [] # list of threads
+    thread_limit = 25  # max number of concurrent threads
+    lock = Lock()  # lock for 'failed' var shared by threads
+    threads_list = []  # list of threads
     for i, line in enumerate(lines):
         if headers == True and i == 0:
             # skip first line if has headers
             continue
 
-        # start new thread for write Prospect to DB operation if active threads < limit   
-        t = threads.ExcThread(target=parse_prospect, args=(line.strip().decode("utf-8"), upload_id, user_id, force,))
+        # start new thread for write Prospect to DB operation if active threads < limit
+        t = threads.ExcThread(
+            target=parse_prospect,
+            args=(
+                line.strip().decode("utf-8"),
+                upload_id,
+                user_id,
+                email_index,
+                first_name_index,
+                last_name_index,
+                force,
+            ),
+        )
         t.start()
         threads_list.append(t)
         threads.CheckActiveThreads(thread_limit, 50, 5)
@@ -134,7 +159,9 @@ def scan_lines(
     # update upload object if failed
     if failed > 0:
         try:
-            upload = UploadCrud.update_upload(db, upload_id, created, updated, skipped, failed)
+            upload = UploadCrud.update_upload(
+                db, upload_id, created, updated, skipped, failed
+            )
             return True
         except BaseException as err:
             print(f"Unexpected {err=}, {type(err)=}")
@@ -142,32 +169,49 @@ def scan_lines(
     # no errors during db upload
     return False
 
+
 # parse line from CSV file, create Prospect object and write to DB
-def parse_prospect(line: str, upload_id: int, user_id: int, force: bool):
+def parse_prospect(
+    line: str,
+    upload_id: int,
+    user_id: int,
+    email_index: int,
+    first_name_index: int,
+    last_name_index: int,
+    force: bool,
+):
     spl = line.split(",")
-    if len(spl) != 3: 
+    if len(spl) != 3:
         # raise exception for invalid CSV record
         print("FAIL: " + line)
         raise ValueError
 
-    # note: fixed file schema: last_name, first_name, email    
+    # note: fixed file schema: last_name, first_name, email
     try:
-        prospect_input = schemas.ProspectCreate(email=EmailStr(spl[2]).lower(), first_name=spl[1], last_name=spl[0])
+        email = EmailStr(spl[email_index])
+        first_name = spl[first_name_index]
+        last_name = spl[last_name_index]
+        prospect_input = schemas.ProspectCreate(
+            email=EmailStr(spl[email_index]).lower(),
+            first_name=spl[first_name_index],
+            last_name=spl[last_name_index],
+        )
         write_prospect(upload_id, user_id, prospect_input, force)
     except BaseException as err:
-        print("FAIL: " + spl[2].lower())
+        print("FAIL: " + spl[email_index].lower())
         print(f"Unexpected {err=}, {type(err)=}")
         raise
-        
+
+
 # write Prospect object to DB
 def write_prospect(
-    upload_id: int, 
-    user_id: int, 
-    prospect: schemas.ProspectCreate, 
-    force: bool, 
+    upload_id: int,
+    user_id: int,
+    prospect: schemas.ProspectCreate,
+    force: bool,
 ):
     # these values are used to update counts in Upload DB object
-    (created, updated, skipped, failed) = (0, 0, 0, 0) 
+    (created, updated, skipped, failed) = (0, 0, 0, 0)
 
     # get scoped local SQA session for thread
     db = next(get_db_scoped())
@@ -176,18 +220,18 @@ def write_prospect(
     prospect_db = ProspectCrud.get_by_email(db, user_id, prospect.email)
 
     # update prospect if force == True and prospect already exists
-    if force == True:
-        if prospect_db is None:
-            # create new prospect
-            try:
-                ProspectCrud.create_prospect(db, user_id, prospect)
-                created += 1
-            except BaseException as err:
-                db.close()
-                db.remove()
-                print(f"prospect create failed: {err=}, {type(err)=}")
-                raise
-        else:
+    if prospect_db is None:
+        # create new prospect
+        try:
+            ProspectCrud.create_prospect(db, user_id, prospect)
+            created += 1
+        except BaseException as err:
+            db.close()
+            db.remove()
+            print(f"prospect create failed: {err=}, {type(err)=}")
+            raise
+    else:  # update existing or skip
+        if force:
             # update existing if force == True
             try:
                 ProspectCrud.update_prospect(db, user_id, prospect)
@@ -197,23 +241,12 @@ def write_prospect(
                 db.remove()
                 print(f"prospect update failed: {err=}, {type(err)=}")
                 raise
-    else: # skip update if prospect is not None
-        if prospect_db is None:
-            # create new prospect
-            try:
-                ProspectCrud.create_prospect(db, user_id, prospect)
-                created += 1
-            except BaseException as err:
-                db.close()
-                db.remove()
-                print(f"prospect create failed: {err=}, {type(err)=}")
-                raise
         else:
             # skip update existing if force != True
             skipped += 1
 
     # update upload object
-    # (note: this could be optimized by writing both the 
+    # (note: this could be optimized by writing both the
     # Prospect and Upload objects in a transaction, but
     # not sure how to do in SQA)
     try:
