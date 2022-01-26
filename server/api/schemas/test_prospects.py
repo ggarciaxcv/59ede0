@@ -22,6 +22,7 @@ class TestProspectCreate(unittest.TestCase):
         self.assertEqual(prospect.first_name, first)
         self.assertEqual(prospect.last_name, last)
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # begin the unittest.main()
     unittest.main()

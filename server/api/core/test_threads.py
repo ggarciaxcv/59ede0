@@ -16,7 +16,7 @@ class TestThreads(unittest.TestCase):
         lock = threading.Lock()
         failed = 0
         for i in range(n):
-            t = ExcThread(target=thread_helper, kwargs={'n':i, 'limit':105})
+            t = ExcThread(target=thread_helper, kwargs={"n": i, "limit": 105})
             t.start()
             # test exception handling in threads by adding to threads list
             threads.append(t)
@@ -42,7 +42,7 @@ class TestThreads(unittest.TestCase):
                 lock.release()
 
         print(f"failed: {failed=}, {type(failed)=}")
-    
+
     def test_threads_2(self):
         n = 100
         threads = []
@@ -80,7 +80,7 @@ class TestThreads(unittest.TestCase):
         lock = threading.Lock()
         failed = 0
         for i in range(n):
-            t = ExcThread(target=thread_helper_2, kwargs={'n':i, 'limit':1000})
+            t = ExcThread(target=thread_helper_2, kwargs={"n": i, "limit": 1000})
             t.start()
             threads.append(t)
             CheckActiveThreads(thread_limit, 50, 5)
@@ -133,6 +133,7 @@ class TestThreads(unittest.TestCase):
 
         print(f"failed: {failed=}, {type(failed)=}")
 
+
 # with print statements (test threads executing in parallel; non-deterministic terminal output)
 def thread_helper(n: int, limit: int):
     sleep_time = randint(0, 200) / 1000
@@ -142,6 +143,7 @@ def thread_helper(n: int, limit: int):
     if rand > 100:
         raise ValueError
 
+
 # no print statements
 def thread_helper_2(n: int, limit: int):
     sleep_time = randint(0, limit) / 1000
@@ -150,6 +152,7 @@ def thread_helper_2(n: int, limit: int):
     if rand > 100:
         raise ValueError
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # begin the unittest.main()
     unittest.main()

@@ -14,10 +14,11 @@ SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 Base = declarative_base()
 
 # Class DbInit is used to initialize new SQA engines and sessions for use with multi-threading.
-class DbInit():
+class DbInit:
     # new_scoped_session returns a new SQA scoped session
     @classmethod
     def new_scoped_session(self, engine) -> Session:
-        session = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine))
+        session = scoped_session(
+            sessionmaker(autocommit=False, autoflush=False, bind=engine)
+        )
         return session
-        

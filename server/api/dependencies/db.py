@@ -10,6 +10,7 @@ def get_db() -> Generator:
     finally:
         db.close()
 
+
 # get scoped SQA session for use with multi-threading in Uploads service
 def get_db_scoped() -> Generator:
     """Yield a scoped SQLAlchemy database session"""

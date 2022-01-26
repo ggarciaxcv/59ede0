@@ -10,7 +10,7 @@ from api.database import get_db
 
 # fails -- import error (circular import)
 # note: not present when called from main.py
-def TestCreateUpload(unittest.TestCase):
+class TestCreateUpload(unittest.TestCase):
     def test_create_upload_1(self):
         file = open("./api/testing/prospects.csv", "rb")
         db = get_db()

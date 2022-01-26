@@ -9,7 +9,7 @@ from time import sleep
 # Custom Thread Class for catching exceptions raised in thread.
 # target function can accept either args OR kwargs, but not both.
 # defaults to kwargs if both args and kwargs passed.
-class ExcThread(threading.Thread): 
+class ExcThread(threading.Thread):
     def __init__(self, target=None, args=(), kwargs=None):
         super().__init__()
         self.target = target
@@ -20,7 +20,7 @@ class ExcThread(threading.Thread):
     def run(self):
         # store exception in self.exc, if raised by self.target
         self.exc = None
-        if self.kwargs is None:           
+        if self.kwargs is None:
             try:
                 self.target(*self.args)
             except BaseException as e:
@@ -33,12 +33,13 @@ class ExcThread(threading.Thread):
 
     def join(self):
         threading.Thread.join(self)
-        # catch exceptions raised in thread when 
+        # catch exceptions raised in thread when
         # join() is called in caller thread
         if self.exc:
             raise self.exc
 
-# CheckActiveThreads limits threads to given max and uses exponential backoff 
+
+# CheckActiveThreads limits threads to given max and uses exponential backoff
 # to wait when active count >= 'limit'.
 # 'base_ms' and 'retries' set the exponential backoff configuration.
 # max_sleep_time = base_ms * (2 ** retries)

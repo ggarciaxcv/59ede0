@@ -19,13 +19,15 @@ class TestCreateProspect(unittest.TestCase):
         email = "ggarciaxcv@gmail.com"
         first = "Gilberto"
         last = "Garcia"
-        prospect_input = schemas.ProspectCreate(email=email, first_name=first, last_name=last)
-        
+        prospect_input = schemas.ProspectCreate(
+            email=email, first_name=first, last_name=last
+        )
+
         db = Depends(get_db)
         prospect = ProspectCrud.create_prospect(db, test_id, prospect_input)
-        if(prospect is None):
+        if prospect is None:
             print("error: no prospect created!")
-        
+
         print(prospect.id)
         print(prospect.created_at)
         print(prospect.updated_at)
@@ -33,8 +35,8 @@ class TestCreateProspect(unittest.TestCase):
         self.assertEqual(prospect.email, email)
         self.assertEqual(prospect.first_name, first)
         self.assertEqual(prospect.last_name, last)
-        
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     # begin the unittest.main()
     unittest.main()

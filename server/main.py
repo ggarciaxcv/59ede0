@@ -21,7 +21,8 @@ app.include_router(users.router)
 app.include_router(campaigns.router)
 app.include_router(prospects.router)
 app.include_router(imports.router)
-app.include_router(uploads.router) # move this to separate main.py server file for Uploads service
+# move this to separate main.py server file for Uploads service
+app.include_router(uploads.router)
 
 
 @app.exception_handler(StarletteHTTPException)

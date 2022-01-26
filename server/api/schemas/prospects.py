@@ -16,10 +16,12 @@ class Prospect(BaseModel):
     class Config:
         orm_mode = True
 
+
 class ProspectCreate(BaseModel):
     email: str
     first_name: str
     last_name: str
+
 
 class ProspectResponse(BaseModel):
     """One page of prospects"""

@@ -21,7 +21,7 @@ class Upload(Base):
     skipped = Column(BigInteger)
     failed = Column(BigInteger)
     total_count = Column(BigInteger)
-    
+
     user = relationship("User", back_populates="uploads", foreign_keys=[user_id])
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())

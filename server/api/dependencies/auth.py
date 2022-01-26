@@ -39,6 +39,7 @@ def get_current_user(token: str = Depends(get_token), db: Session = Depends(get_
         # Something wrong with the token
         raise CredentialsException
 
+
 # TEST ONLY - use with test_main.py to skip authentication
 # def get_current_user() -> schemas.User:
 #    user = schemas.User(id=1, email="test@test.com", created_at=datetime.now(), updated_at=datetime.now())

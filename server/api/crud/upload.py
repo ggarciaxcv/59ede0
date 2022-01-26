@@ -1,4 +1,4 @@
-# upload.py contains the CRUD operations for interacting with 
+# upload.py contains the CRUD operations for interacting with
 # the Uploads DB table.
 
 from typing import List, Set, Union
@@ -10,6 +10,7 @@ from api.models import Upload
 from api.core.constants import DEFAULT_PAGE_SIZE, DEFAULT_PAGE, MIN_PAGE, MAX_PAGE_SIZE
 
 MAX_SEARCH_RESULTS = 10
+
 
 class UploadCrud:
     @classmethod
@@ -44,10 +45,10 @@ class UploadCrud:
     def create_upload(cls, db: Session, data: schemas.UploadCreate) -> Upload:
         """Create a user upload"""
         upload = Upload(
-            file_name=data.file_name, 
-            file_hash=data.file_hash, 
-            byte_size=data.byte_size, 
-            total_count=data.line_count, 
+            file_name=data.file_name,
+            file_hash=data.file_hash,
+            byte_size=data.byte_size,
+            total_count=data.line_count,
             user_id=data.user_id,
             created=0,
             updated=0,
@@ -56,21 +57,30 @@ class UploadCrud:
         )
         db.add(upload)
         db.commit()
-        db.refresh(upload)        
+        db.refresh(upload)
         return upload
 
     # update state of upload object in DB as file is processed
     @classmethod
-    def update_upload(cls, db: Session, upload_id: int, created: int, updated: int, skipped: int, failed: int):
-        db.query(Upload)\
-        .filter(Upload.id == upload_id)\
-        .update({
-            "created": (Upload.created + created),
-            "updated": (Upload.updated + updated),
-            "skipped": (Upload.skipped + skipped),
-            "failed": (Upload.failed + failed),
-            "updated_at": datetime.now(),
-            }, synchronize_session="fetch")
+    def update_upload(
+        cls,
+        db: Session,
+        upload_id: int,
+        created: int,
+        updated: int,
+        skipped: int,
+        failed: int,
+    ):
+        db.query(Upload).filter(Upload.id == upload_id).update(
+            {
+                "created": (Upload.created + created),
+                "updated": (Upload.updated + updated),
+                "skipped": (Upload.skipped + skipped),
+                "failed": (Upload.failed + failed),
+                "updated_at": datetime.now(),
+            },
+            synchronize_session="fetch",
+        )
         db.commit()
         # db.refresh(res)
         return
