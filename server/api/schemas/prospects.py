@@ -18,7 +18,7 @@ class Prospect(BaseModel):
 
 
 class ProspectCreate(BaseModel):
-    email: EmailStr
+    email: str
     first_name: str
     last_name: str
 

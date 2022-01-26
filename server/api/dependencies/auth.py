@@ -11,6 +11,7 @@ from api.core import security
 from api.core.exceptions import CredentialsException
 from api.crud.user import UserCrud
 from api.dependencies.db import get_db
+from datetime import datetime
 
 
 def get_token(request: Request):
@@ -37,3 +38,9 @@ def get_current_user(token: str = Depends(get_token), db: Session = Depends(get_
     except (JWTError, ExpiredSignatureError):
         # Something wrong with the token
         raise CredentialsException
+
+
+# TEST ONLY - use with test_main.py to skip authentication
+# def get_current_user() -> schemas.User:
+#    user = schemas.User(id=1, email="test@test.com", created_at=datetime.now(), updated_at=datetime.now())
+#    return user
