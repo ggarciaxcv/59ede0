@@ -45,10 +45,7 @@ class UploadCreate(BaseModel):
 
     @classmethod
     def get_header_schema(self, email_ix: int, first_ix: int, last_ix: int):
-        email = 0
-        first = 0
-        last = 0
-
+        # set default values for first, last name indices if not set
         ix = {email_ix: "email"}
         if first_ix in ix:
             # first_ix == email_ix
@@ -67,20 +64,7 @@ class UploadCreate(BaseModel):
                 last_ix += 1
         ix[last_ix] = "last"
 
-        vals = [email_ix, first_ix, last_ix]
-        vals.sort()
-
-        # normalize index values with 0 base ("0, 1, 2")
-        for i, val in enumerate(vals):
-            field = ix[val]
-            if field == "email":
-                email = i
-            if field == "first":
-                first = i
-            if field == "last":
-                last = i
-
-        return email, first, last
+        return email_ix, first_ix, last_ix
 
 
 # UploadCreateRequest represents the POST request data sent to the Import endpoint by the end user.
