@@ -9,6 +9,7 @@ from fastapi import APIRouter, HTTPException, status, Depends, Form, File, Uploa
 from sqlalchemy.orm.session import Session
 from starlette.responses import JSONResponse
 from starlette import status
+from typing import Optional
 
 from api import schemas
 from api.dependencies.auth import get_current_user
@@ -59,10 +60,10 @@ def get_upload_progress(
 def new_upload_request(
     file: UploadFile = File(...),
     email_index: int = Form(...),
-    first_name_index: int = Form(...),
-    last_name_index: int = Form(...),
-    force: bool = Form(...),
-    has_headers: bool = Form(...),
+    first_name_index: Optional[int] = Form(0),
+    last_name_index: Optional[int] = Form(0),
+    force: Optional[bool] = Form(False),
+    has_headers: Optional[bool] = Form(False),
     current_user: schemas.User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
