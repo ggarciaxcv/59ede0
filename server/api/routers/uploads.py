@@ -10,21 +10,18 @@
 # while the file is processed by the Uploads service in the background. This feature could
 # be further optimized by adding a notification service to alert the user once the upload is complete.
 
-from fastapi import APIRouter, HTTPException, status, Depends, Form, File, UploadFile
+from fastapi import APIRouter, HTTPException, status, Depends
 from sqlalchemy.orm.session import Session
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_401_UNAUTHORIZED
 from io import FileIO
-from shutil import copyfileobj
-from os import path, makedirs
+from os import path
 from threading import Lock
-from typing import List
 from pydantic import EmailStr
 
 from api import schemas
 from api.dependencies.auth import get_current_user
 from api.core import threads
-from api.core.constants import DEFAULT_PAGE, DEFAULT_PAGE_SIZE
 from api.crud import ProspectCrud, UploadCrud
 from api.dependencies.db import get_db_scoped
 
@@ -186,7 +183,6 @@ def parse_prospect(
         print("FAIL: " + line)
         raise ValueError
 
-    # note: fixed file schema: last_name, first_name, email
     try:
         email = EmailStr(spl[email_index])
         first_name = spl[first_name_index]

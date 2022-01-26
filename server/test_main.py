@@ -6,12 +6,9 @@
 # postgre server.
 # Note: user_id ('1') must be hard coded in /routers/imports.py and r/outers/uploads.py
 # files to run locally.
-
-import unittest
 from requests import post
 from io import FileIO
 from api.core.constants import UPLOAD_SVC_ENDPOINT
-from api.core.threads import ExcThread
 from api import schemas
 from api.routers.imports import post_to_upload_service
 

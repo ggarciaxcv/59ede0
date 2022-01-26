@@ -1,8 +1,4 @@
 import unittest
-from random import randint
-from time import sleep
-from threading import Lock
-from io import FileIO
 
 from api import schemas
 from api.crud.upload import UploadCrud
@@ -26,9 +22,9 @@ class TestCreateUpload(unittest.TestCase):
             file_info.get_file_hash(),
             file_info.get_byte_size(),
             file_info.get_line_count(),
-            current_user.id,
+            1,
         )
 
-        upload = UploadCrud.create_upload(db, upload_inpupt)
+        upload = UploadCrud.create_upload(db, upload_input)
 
         print(upload)

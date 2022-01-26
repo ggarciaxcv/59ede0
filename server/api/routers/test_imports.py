@@ -1,17 +1,10 @@
 import unittest
-from random import randint
-from time import sleep
-from threading import Lock
+from requests import post
 from io import FileIO
-from fastapi import Depends
-from sqlalchemy.orm.session import Session
 
 from api import schemas
-from api.core.threads import ExcThread
-from api.crud import ProspectCrud
 from api.routers.imports import post_to_upload_service, write_file
 from api.core.constants import UPLOAD_SVC_ENDPOINT
-from api.dependencies.db import get_db
 
 
 class TestWriteFile(unittest.TestCase):

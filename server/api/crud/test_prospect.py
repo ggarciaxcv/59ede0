@@ -4,7 +4,6 @@ from api import schemas
 from prospect import ProspectCrud
 
 from fastapi import Depends
-from sqlalchemy.orm.session import Session
 from api.dependencies.db import get_db
 
 # test failed due to ImportError (circular import)

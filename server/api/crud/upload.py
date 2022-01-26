@@ -1,10 +1,9 @@
 # upload.py contains the CRUD operations for interacting with
 # the Uploads DB table.
 
-from typing import List, Set, Union
+from typing import List, Union
 from datetime import datetime
 from sqlalchemy.orm.session import Session
-from sqlalchemy.sql.functions import func
 from api import schemas
 from api.models import Upload
 from api.core.constants import DEFAULT_PAGE_SIZE, DEFAULT_PAGE, MIN_PAGE, MAX_PAGE_SIZE

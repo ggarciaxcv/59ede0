@@ -9,16 +9,14 @@ from fastapi import APIRouter, HTTPException, status, Depends, Form, File, Uploa
 from sqlalchemy.orm.session import Session
 from starlette.responses import JSONResponse
 from starlette.status import HTTP_401_UNAUTHORIZED
-from datetime import datetime
-from io import FileIO
-from typing import List
+
 from requests import post
 from os import path, makedirs
 from shutil import copyfileobj
 
 from api import schemas
 from api.dependencies.auth import get_current_user
-from api.core.constants import DEFAULT_PAGE, DEFAULT_PAGE_SIZE, UPLOAD_SVC_ENDPOINT
+from api.core.constants import UPLOAD_SVC_ENDPOINT
 from api.core.threads import ExcThread
 from api.crud import UploadCrud
 from api.dependencies.db import get_db

@@ -42,10 +42,9 @@ class UploadCreate(BaseModel):
 
     # normalize header index values
     # returns tuple with postitions of email, first, and last name indices
+
     @classmethod
-    def get_header_schema(
-        self, email_ix: int, first_ix: int, last_ix: int
-    ) -> (int, int, int):
+    def get_header_schema(self, email_ix: int, first_ix: int, last_ix: int):
         email = 0
         first = 0
         last = 0
