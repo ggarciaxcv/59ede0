@@ -36,7 +36,12 @@ class ProspectCrud:
         cls, db: Session, user_id: int, data: schemas.ProspectCreate
     ) -> Prospect:
         """Create a prospect"""
-        prospect = Prospect(email=data.email, first_name=data.first_name, last_name=data.last_name, user_id=user_id)
+        prospect = Prospect(
+            email=data.email,
+            first_name=data.first_name,
+            last_name=data.last_name,
+            user_id=user_id,
+        )
         db.add(prospect)
         db.commit()
         db.refresh(prospect)
@@ -57,18 +62,30 @@ class ProspectCrud:
 
     # update Prospect object first_name / last_name when "force" paramater == True in Upload API request
     @classmethod
-    def update_prospect(cls, db: Session, user_id: int, prospect_input: schemas.ProspectCreate):
-        db.query(Prospect)\
-        .filter(Prospect.email == prospect_input.email)\
-        .update({
-            "first_name": prospect_input.first_name,
-            "last_name": prospect_input.last_name,
-            }, synchronize_session="fetch")
+    def update_prospect(
+        cls, db: Session, user_id: int, prospect_input: schemas.ProspectCreate
+    ):
+        db.query(Prospect).filter(Prospect.user_id == user_id).filter(
+            Prospect.email == prospect_input.email
+        ).update(
+            {
+                "first_name": prospect_input.first_name,
+                "last_name": prospect_input.last_name,
+            },
+            synchronize_session="fetch",
+        )
         db.commit()
         return
 
     # get prospect by user_id and prospect email
     @classmethod
-    def get_by_email(cls, db: Session, user_id: int, email: str) -> Union[Prospect, None]:
+    def get_by_email(
+        cls, db: Session, user_id: int, email: str
+    ) -> Union[Prospect, None]:
         """Get a single upload by id"""
-        return db.query(Prospect).filter(Prospect.user_id == user_id).filter(Prospect.email == email).one_or_none()
+        return (
+            db.query(Prospect)
+            .filter(Prospect.user_id == user_id)
+            .filter(Prospect.email == email)
+            .one_or_none()
+        )
