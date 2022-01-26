@@ -8,7 +8,11 @@ from api import schemas
 from api.core import threads
 from api.crud import ProspectCrud, UploadCrud
 from api.dependencies.db import get_db_scoped
-from api.core.constants import THREAD_LIMIT, THREAD_BACKOFF_BASE_MS, THREAD_BACKOFF_RETRIES
+from api.core.constants import (
+    THREAD_LIMIT,
+    THREAD_BACKOFF_BASE_MS,
+    THREAD_BACKOFF_RETRIES,
+)
 
 # write_file writes the given file to the disk cache
 def get_cache_file(user_id: int, file_name: str) -> FileIO:
@@ -38,7 +42,7 @@ def scan_lines(
     # scan lines in file
     lines = file.readlines()
     (created, updated, skipped, failed) = (0, 0, 0, 0)
-    
+
     lock = Lock()  # lock for 'failed' var shared by threads
     threads_list = []  # list of threads
     for i, line in enumerate(lines):
@@ -61,7 +65,9 @@ def scan_lines(
         )
         t.start()
         threads_list.append(t)
-        threads.CheckActiveThreads(THREAD_LIMIT, THREAD_BACKOFF_BASE_MS, THREAD_BACKOFF_RETRIES)
+        threads.CheckActiveThreads(
+            THREAD_LIMIT, THREAD_BACKOFF_BASE_MS, THREAD_BACKOFF_RETRIES
+        )
 
         if i % 100 == 0:
             txt = "records processed: {:n}"
@@ -110,15 +116,7 @@ def parse_prospect(
     force: bool,
 ):
     spl = line.split(",")
-    if len(spl) != 3:
-        # raise exception for invalid CSV record
-        print("FAIL: " + line)
-        raise ValueError
-
     try:
-        email = EmailStr(spl[email_index])
-        first_name = spl[first_name_index]
-        last_name = spl[last_name_index]
         prospect_input = schemas.ProspectCreate(
             email=EmailStr(spl[email_index]).lower(),
             first_name=spl[first_name_index],
