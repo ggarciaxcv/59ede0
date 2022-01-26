@@ -95,9 +95,9 @@ class TestGetHeaderSchema(unittest.TestCase):
         email, first, last = UploadCreate(
             file_name="", file_hash="", byte_size=0, line_count=0, user_id=0
         ).get_header_schema(email_ix, first_ix, last_ix)
-        self.assertEqual(email, 0)
-        self.assertEqual(first, 1)
-        self.assertEqual(last, 2)
+        self.assertEqual(email, 12)
+        self.assertEqual(first, 15)
+        self.assertEqual(last, 25)
 
     def test_headers_6(self):
         email_ix = 0
