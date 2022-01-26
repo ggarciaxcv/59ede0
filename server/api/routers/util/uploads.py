@@ -8,6 +8,7 @@ from api import schemas
 from api.core import threads
 from api.crud import ProspectCrud, UploadCrud
 from api.dependencies.db import get_db_scoped
+from api.core.constants import THREAD_LIMIT, THREAD_BACKOFF_BASE_MS, THREAD_BACKOFF_RETRIES
 
 # write_file writes the given file to the disk cache
 def get_cache_file(user_id: int, file_name: str) -> FileIO:
@@ -37,8 +38,7 @@ def scan_lines(
     # scan lines in file
     lines = file.readlines()
     (created, updated, skipped, failed) = (0, 0, 0, 0)
-
-    thread_limit = 25  # max number of concurrent threads
+    
     lock = Lock()  # lock for 'failed' var shared by threads
     threads_list = []  # list of threads
     for i, line in enumerate(lines):
@@ -61,7 +61,7 @@ def scan_lines(
         )
         t.start()
         threads_list.append(t)
-        threads.CheckActiveThreads(thread_limit, 50, 5)
+        threads.CheckActiveThreads(THREAD_LIMIT, THREAD_BACKOFF_BASE_MS, THREAD_BACKOFF_RETRIES)
 
         if i % 100 == 0:
             txt = "records processed: {:n}"
